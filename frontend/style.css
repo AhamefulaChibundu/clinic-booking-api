@@ -1,0 +1,586 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7fb;
+    color: #263445;
+    line-height: 1.6;
+}
+
+/* Header */
+.site-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5eaf0;
+}
+
+.header-content {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Logo */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #1769aa;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.logo-icon {
+    width: 42px;
+    height: 42px;
+    display: block;
+}
+
+.logo-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+    font-size: 21px;
+    font-weight: bold;
+    line-height: 1.1;
+}
+
+.logo-text small {
+    margin-top: 4px;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: #68778a;
+}
+
+/* Navigation */
+nav {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+nav a {
+    color: #526174;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+nav a:hover,
+nav a.active {
+    color: #1769aa;
+}
+
+/* Main content */
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 55px 24px;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.eyebrow {
+    color: #1769aa;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+}
+
+.page-header h1 {
+    font-size: 34px;
+    margin-bottom: 10px;
+    color: #1d2d40;
+}
+
+.page-header > p:last-child {
+    color: #68778a;
+}
+
+/* Booking card */
+.booking-card {
+    max-width: 550px;
+    margin: 0 auto;
+    padding: 32px;
+    background-color: #ffffff;
+    border: 1px solid #e5eaf0;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(30, 55, 80, 0.06);
+}
+
+.booking-card h2 {
+    font-size: 21px;
+    margin-bottom: 24px;
+    color: #1d2d40;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    min-height: 46px;
+    padding: 12px 14px;
+    border: 1px solid #d7e0e9;
+    border-radius: 7px;
+    font-size: 14px;
+    color: #263445;
+    background-color: #ffffff;
+    outline: none;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #1769aa;
+    box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.1);
+}
+
+/* Booking button */
+button {
+    width: 100%;
+    min-height: 48px;
+    padding: 13px;
+    border: none;
+    border-radius: 7px;
+    background-color: #1769aa;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+button:hover {
+    background-color: #125486;
+}
+
+button:disabled {
+    background-color: #91a8bb;
+    cursor: not-allowed;
+}
+
+/* Feedback message */
+#message {
+    margin-top: 18px;
+    font-size: 14px;
+    text-align: center;
+}
+
+#message.success {
+    color: #16804a;
+}
+
+#message.error {
+    color: #c0392b;
+}
+
+/* Booking confirmation */
+.booking-confirmation {
+    margin-top: 24px;
+    padding: 20px;
+    background-color: #f0f9f4;
+    border: 1px solid #ccebd8;
+    border-radius: 9px;
+}
+
+.booking-confirmation[hidden] {
+    display: none;
+}
+
+.confirmation-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.confirmation-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: #16804a;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.confirmation-heading h3 {
+    color: #16804a;
+    font-size: 18px;
+}
+
+.booking-confirmation > p {
+    color: #526174;
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+.booking-id-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 13px;
+    background-color: #ffffff;
+    border: 1px solid #dce9e0;
+    border-radius: 7px;
+}
+
+.booking-id-details {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.booking-id-label {
+    color: #758397;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.booking-id-details strong {
+    color: #263445;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.copy-button {
+    width: auto;
+    min-width: 85px;
+    min-height: 38px;
+    padding: 8px 12px;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.copy-message {
+    margin-top: 10px;
+    color: #16804a;
+    font-size: 12px;
+}
+
+/* Footer */
+.site-footer {
+    text-align: center;
+    padding: 22px;
+    color: #758397;
+    font-size: 13px;
+}
+
+/* Tablet and mobile */
+@media (max-width: 600px) {
+    .header-content {
+        padding: 14px 16px;
+        gap: 12px;
+    }
+
+    .logo-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .logo-text {
+        font-size: 18px;
+    }
+
+    nav {
+        gap: 12px;
+    }
+
+    nav a {
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .container {
+        padding: 38px 16px;
+    }
+
+    .page-header {
+        margin-bottom: 26px;
+    }
+
+    .eyebrow {
+        font-size: 10px;
+    }
+
+    .page-header h1 {
+        font-size: 27px;
+        line-height: 1.25;
+    }
+
+    .page-header > p:last-child {
+        font-size: 14px;
+        max-width: 320px;
+        margin: 0 auto;
+    }
+
+    .booking-card {
+        padding: 24px 18px;
+        border-radius: 10px;
+    }
+
+    .booking-card h2 {
+        font-size: 19px;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .form-group input,
+    .form-group select {
+        min-height: 48px;
+        font-size: 16px;
+    }
+
+    button {
+        min-height: 50px;
+        font-size: 15px;
+    }
+
+    .booking-confirmation {
+        padding: 16px 12px;
+    }
+
+    .confirmation-heading h3 {
+        font-size: 16px;
+    }
+
+    .booking-id-container {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .booking-id-details strong {
+        font-size: 11px;
+    }
+
+    .copy-button {
+        width: 100%;
+    }
+
+    .site-footer {
+        padding: 18px 12px;
+        font-size: 12px;
+    }
+}
+
+/* Very small phones */
+@media (max-width: 360px) {
+    .header-content {
+        padding: 12px;
+    }
+
+    .logo-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .logo-text {
+        font-size: 16px;
+    }
+
+    nav {
+        gap: 8px;
+    }
+
+    nav a {
+        font-size: 11px;
+    }
+
+    .container {
+        padding: 30px 12px;
+    }
+
+    .booking-card {
+        padding: 20px 14px;
+    }
+}
+
+
+
+/* My Appointments section */
+.appointments-card {
+    margin-top: 30px;
+}
+
+.appointments-intro {
+    margin: 8px 0 22px;
+    color: #758397;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.appointments-message {
+    margin-top: 14px;
+    font-size: 13px;
+    text-align: center;
+}
+
+.appointments-message.success {
+    color: #16804a;
+}
+
+.appointments-message.error {
+    color: #c0392b;
+}
+
+.appointments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 20px;
+}
+
+.appointments-empty {
+    padding: 24px 12px;
+    color: #758397;
+    font-size: 13px;
+    text-align: center;
+    background-color: #f8fafc;
+    border: 1px dashed #d7e0e9;
+    border-radius: 8px;
+}
+
+.appointment-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+    padding: 18px;
+    border: 1px solid #e5eaf0;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+.appointment-details {
+    min-width: 0;
+}
+
+.appointment-provider {
+    margin-bottom: 8px;
+    color: #263445;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+.appointment-info {
+    margin-top: 5px;
+    color: #758397;
+    font-size: 12px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.appointment-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.appointment-status {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.appointment-status.confirmed {
+    background-color: #e8f6ee;
+    color: #16804a;
+}
+
+.appointment-status.cancelled {
+    background-color: #f1f3f5;
+    color: #687585;
+}
+
+.cancel-appointment-button {
+    width: auto;
+    min-height: 36px;
+    padding: 8px 12px;
+    background-color: #fff0ef;
+    color: #c0392b;
+    font-size: 12px;
+}
+
+.cancel-appointment-button:hover {
+    background-color: #fbdedb;
+}
+
+.cancel-appointment-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+@media (max-width: 600px) {
+    .appointment-item {
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px;
+    }
+
+    .appointment-provider {
+        font-size: 13px;
+    }
+
+    .appointment-info {
+        font-size: 11px;
+    }
+
+    .appointment-actions {
+        gap: 10px;
+    }
+
+    .cancel-appointment-button {
+        min-height: 34px;
+        padding: 7px 9px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 400px) {
+    .appointment-item {
+        flex-direction: column;
+    }
+
+    .appointment-actions {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
