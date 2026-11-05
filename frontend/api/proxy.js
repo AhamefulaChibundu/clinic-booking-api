@@ -11,12 +11,11 @@ module.exports = async (req, res) => {
             });
         }
 
-        // Extract the route from the request URL.
+        // Read the API route forwarded by Vercel.
         const incomingUrl = new URL(req.url, 'http://localhost');
 
-        const route = incomingUrl.pathname
-            .replace(/^\/api\/?/, '')
-            .replace(/\/+$/, '');
+        const route = (incomingUrl.searchParams.get('path') || '')
+            .replace(/^\/+|\/+$/g, '');
 
         // Allow only patient-facing API operations.
         const allowedRoutes =
@@ -37,9 +36,9 @@ module.exports = async (req, res) => {
             `${backendUrl.replace(/\/+$/, '')}/${route}`
         );
 
-        // Forward query parameters, excluding Vercel's internal route parameter.
+        // Forward query parameters, excluding the internal path parameter.
         incomingUrl.searchParams.forEach((value, key) => {
-            if (key !== '...path') {
+            if (key !== 'path') {
                 targetUrl.searchParams.append(key, value);
             }
         });
