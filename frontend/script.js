@@ -200,20 +200,15 @@ bookingForm.addEventListener('submit', async (event) => {
             );
         }
 
-        // Clear the form after a successful booking.
+        // Clear the booking form after a successful booking.
         bookingForm.reset();
 
         // Display the booking ID in the confirmation section.
         bookingIdElement.textContent = data.id;
         bookingConfirmation.hidden = false;
 
-        // Remember the patient's email for appointment lookup.
-        currentAppointmentsEmail = bookingData.email;
-        appointmentsEmail.value = bookingData.email;
-
-        // Refresh available slots and the patient's appointments.
+        // Refresh available slots without touching My Appointments.
         await loadSlots();
-        await loadAppointments(bookingData.email);
 
         showMessage(
             'Your appointment has been booked successfully!',
@@ -381,7 +376,7 @@ const loadAppointments = async (email) => {
     }
 };
 
-// Find appointments when the patient submits their email.
+// Find appointments only when the patient submits their email.
 appointmentsForm.addEventListener('submit', async (event) => {
     event.preventDefault();
 
@@ -436,6 +431,11 @@ appointmentsList.addEventListener('click', async (event) => {
             );
         }
 
+        // Hide the previous booking confirmation completely.
+        showMessage('', '');
+        bookingConfirmation.hidden = true;
+        copyMessage.textContent = '';
+
         showAppointmentsMessage(
             'Your appointment has been cancelled successfully.',
             'success'
@@ -446,6 +446,12 @@ appointmentsList.addEventListener('click', async (event) => {
 
         // The cancelled slot should now be available again.
         await loadSlots();
+
+        // Restore the cancellation success message after refreshing.
+        showAppointmentsMessage(
+            'Your appointment has been cancelled successfully.',
+            'success'
+        );
 
     } catch (error) {
         showAppointmentsMessage(error.message, 'error');
