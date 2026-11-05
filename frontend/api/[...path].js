@@ -4,19 +4,19 @@ module.exports = async (req, res) => {
         const backendUrl = process.env.BACKEND_URL;
         const apiKey = process.env.API_KEY;
 
-        // Check that the proxy is properly configured.
+        // Check proxy configuration.
         if (!backendUrl || !apiKey) {
             return res.status(500).json({
                 error: 'Proxy configuration is missing.',
             });
         }
 
-        // Get the requested route.
-        const pathSegments = Array.isArray(req.query.path)
-            ? req.query.path
-            : [req.query.path].filter(Boolean);
+        // Extract the route from the request URL.
+        const incomingUrl = new URL(req.url, 'http://localhost');
 
-        const route = pathSegments.join('/');
+        const route = incomingUrl.pathname
+            .replace(/^\/api\/?/, '')
+            .replace(/\/+$/, '');
 
         // Allow only patient-facing API operations.
         const allowedRoutes =
@@ -37,11 +37,11 @@ module.exports = async (req, res) => {
             `${backendUrl.replace(/\/+$/, '')}/${route}`
         );
 
-        // Preserve query parameters.
-        const incomingUrl = new URL(req.url, 'http://localhost');
-
+        // Forward query parameters, excluding Vercel's internal route parameter.
         incomingUrl.searchParams.forEach((value, key) => {
-            targetUrl.searchParams.append(key, value);
+            if (key !== '...path') {
+                targetUrl.searchParams.append(key, value);
+            }
         });
 
         // Prepare the backend request.
@@ -66,7 +66,7 @@ module.exports = async (req, res) => {
             options.body = JSON.stringify(req.body || {});
         }
 
-        // Send the request to the backend.
+        // Send the request to Render.
         const backendResponse = await fetch(targetUrl, options);
 
         const responseBody = await backendResponse.text();
