@@ -40,6 +40,17 @@ const showAppointmentsMessage = (text, type) => {
     appointmentsMessage.className = `appointments-message ${type}`;
 };
 
+// Hide previous appointment results until the patient requests them again.
+const hideAppointments = () => {
+    appointmentsList.innerHTML = '';
+    appointmentsList.hidden = true;
+
+    showAppointmentsMessage('', '');
+
+    // Prevent the next cancellation from using an outdated email.
+    currentAppointmentsEmail = '';
+};
+
 // Format appointment dates and times using 12-hour time.
 const formatDateTime = (date) => {
     return new Intl.DateTimeFormat('en-NG', {
@@ -207,7 +218,10 @@ bookingForm.addEventListener('submit', async (event) => {
         bookingIdElement.textContent = data.id;
         bookingConfirmation.hidden = false;
 
-        // Refresh available slots without touching My Appointments.
+        // Hide previous appointment results after a new booking.
+        hideAppointments();
+
+        // Refresh available slots without loading My Appointments.
         await loadSlots();
 
         showMessage(
@@ -311,6 +325,9 @@ const displayAppointments = (bookings) => {
 // Load all bookings belonging to an email address.
 const loadAppointments = async (email) => {
     currentAppointmentsEmail = email.trim().toLowerCase();
+
+    // Show the appointment results when the patient requests them.
+    appointmentsList.hidden = false;
 
     appointmentsList.innerHTML = `
         <p class="appointments-empty">Loading your appointments...</p>
