@@ -1,5 +1,6 @@
 
 const API_BASE_URL = '/api';
+const PENDING_BOOKING_STORAGE_KEY = 'koyaPendingBooking';
 
 // Get the HTML elements we need to work with.
 const providerFilter = document.getElementById('providerFilter');
@@ -22,8 +23,62 @@ const appointmentsList = document.getElementById('appointmentsList');
 // Store available slots retrieved from the backend.
 let availableSlots = [];
 
-// Keep an idempotency key if a request fails before we receive a response.
-let pendingRequest = null;
+// Restore a pending booking request from browser storage.
+const loadPendingBookingRequest = () => {
+    try {
+        const savedRequest = localStorage.getItem(
+            PENDING_BOOKING_STORAGE_KEY
+        );
+
+        if (!savedRequest) {
+            return null;
+        }
+
+        const parsedRequest = JSON.parse(savedRequest);
+
+        if (
+            typeof parsedRequest.key !== 'string' ||
+            !parsedRequest.body ||
+            typeof parsedRequest.body.slot_id !== 'string' ||
+            typeof parsedRequest.body.name !== 'string' ||
+            typeof parsedRequest.body.email !== 'string'
+        ) {
+            localStorage.removeItem(PENDING_BOOKING_STORAGE_KEY);
+            return null;
+        }
+
+        return parsedRequest;
+
+    } catch (error) {
+        return null;
+    }
+};
+
+// Keep an idempotency key if a request is still pending.
+let pendingRequest = loadPendingBookingRequest();
+
+// Save the pending request before sending it to the backend.
+const savePendingBookingRequest = () => {
+    try {
+        localStorage.setItem(
+            PENDING_BOOKING_STORAGE_KEY,
+            JSON.stringify(pendingRequest)
+        );
+    } catch (error) {
+        // Booking can still work if browser storage is unavailable.
+    }
+};
+
+// Clear the pending request after a successful or definitive response.
+const clearPendingBookingRequest = () => {
+    pendingRequest = null;
+
+    try {
+        localStorage.removeItem(PENDING_BOOKING_STORAGE_KEY);
+    } catch (error) {
+        // Ignore browser storage errors.
+    }
+};
 
 // Store the email currently being used to view appointments.
 let currentAppointmentsEmail = '';
@@ -73,7 +128,9 @@ const displaySlots = () => {
 
     slotSelect.innerHTML = '';
 
-    if (filteredSlots.length === 0) {
+    const pendingSlotId = pendingRequest?.body?.slot_id;
+
+    if (filteredSlots.length === 0 && !pendingSlotId) {
         const option = document.createElement('option');
         option.value = '';
         option.textContent = 'No available appointments';
@@ -100,6 +157,37 @@ const displaySlots = () => {
 
         slotSelect.appendChild(option);
     });
+
+    // Keep a previously submitted slot available for an idempotent retry.
+    // It may no longer appear in availableSlots if the first request succeeded.
+    if (
+        pendingSlotId &&
+        !filteredSlots.some((slot) => slot.id === pendingSlotId)
+    ) {
+        const option = document.createElement('option');
+
+        option.value = pendingSlotId;
+        option.textContent = `Pending booking — ${pendingSlotId}`;
+
+        slotSelect.appendChild(option);
+    }
+};
+
+// Restore the details of a pending request into the booking form.
+const restorePendingBookingForm = () => {
+    if (!pendingRequest) {
+        return;
+    }
+
+    document.getElementById('name').value = pendingRequest.body.name;
+    document.getElementById('email').value = pendingRequest.body.email;
+
+    slotSelect.value = pendingRequest.body.slot_id;
+
+    showMessage(
+        'A previous booking request may still be processing. Submit the same details to safely retry it.',
+        'error'
+    );
 };
 
 // Load available appointment slots from the backend.
@@ -138,12 +226,15 @@ const loadSlots = async () => {
 
         displaySlots();
 
-        if (availableSlots.length === 0) {
+        // Restore a pending booking after the slots have loaded.
+        restorePendingBookingForm();
+
+        if (availableSlots.length === 0 && !pendingRequest) {
             showMessage(
                 'There are currently no available appointments.',
                 'error'
             );
-        } else {
+        } else if (!pendingRequest) {
             showMessage('', '');
         }
 
@@ -158,6 +249,11 @@ const loadSlots = async () => {
 // Filter appointments when the patient selects a doctor.
 providerFilter.addEventListener('change', () => {
     displaySlots();
+
+    // Preserve the pending slot selection when changing the doctor filter.
+    if (pendingRequest) {
+        slotSelect.value = pendingRequest.body.slot_id;
+    }
 });
 
 // Handle appointment booking.
@@ -182,6 +278,9 @@ bookingForm.addEventListener('submit', async (event) => {
         };
     }
 
+    // Save the key before making the request.
+    savePendingBookingRequest();
+
     bookButton.disabled = true;
     bookButton.textContent = 'Booking...';
 
@@ -200,16 +299,45 @@ bookingForm.addEventListener('submit', async (event) => {
             body: JSON.stringify(bookingData),
         });
 
-        const data = await response.json();
+        let data;
 
-        // We received a response, so this request is no longer pending.
-        pendingRequest = null;
+        try {
+            data = await response.json();
+        } catch (error) {
+            // A server error or timeout may have happened after processing.
+            // Preserve the key so the patient can safely retry.
+            if (response.status >= 500 || response.status === 408) {
+                throw new Error(
+                    'The server response was unclear. Please retry the same booking.'
+                );
+            }
 
-        if (!response.ok) {
+            clearPendingBookingRequest();
+
             throw new Error(
-                data.error || 'Unable to complete your booking.'
+                'The server returned an invalid response. Please try again.'
             );
         }
+
+        if (!response.ok) {
+            // Keep the key when the outcome may be uncertain.
+            const uncertainOutcome =
+                response.status >= 500 || response.status === 408;
+
+            if (!uncertainOutcome) {
+                clearPendingBookingRequest();
+            }
+
+            throw new Error(
+                data.error ||
+                (uncertainOutcome
+                    ? 'The server encountered an error. Please retry the same booking.'
+                    : 'Unable to complete your booking.')
+            );
+        }
+
+        // The booking succeeded, so the pending request can be cleared.
+        clearPendingBookingRequest();
 
         // Clear the booking form after a successful booking.
         bookingForm.reset();
@@ -230,7 +358,9 @@ bookingForm.addEventListener('submit', async (event) => {
         );
 
     } catch (error) {
+        // Network failures leave the saved request available for retry.
         showMessage(error.message, 'error');
+
     } finally {
         bookButton.disabled = false;
         bookButton.textContent = 'Book Appointment';
